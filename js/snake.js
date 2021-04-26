@@ -1,5 +1,5 @@
 var main = $("#main");
-var showcanvas = true;//是否开启画布格子
+var showcanvas = false;//是否开启画布格子
 
 /**
  * @name 地图对象构造
@@ -30,7 +30,7 @@ function Map(atom, xnum, ynum){
                     a.style.cssText = "border: 1px solid yellow;";
                     a.style.width = this.atom + 'px';//画布的宽
                     a.style.height = this.atom + 'px';//画布的高
-                    a.style.background = 'green';//画布的高
+                    a.style.background = '#CCC';//画布的高
                     this.canvas.appendChild(a);
                     a.style.position = "absolute";
                     a.style.left = x * this.atom + "px";
@@ -59,12 +59,61 @@ function Food(map){
     this.flag.style.height = this.height + 'px';
 
     this.flag.style.backgroundColor = this.bgcolor;
-    this.flag.style.borderRadius = '50%';
+    // this.flag.style.borderRadius = '50%';
     this.flag.style.position = 'absolute';
     this.flag.style.left = this.x * this.width + 'px';
     this.flag.style.top = this.y * this.height + 'px';
 
     map.canvas.appendChild(this.flag);
+}
+
+function Snake(map) {
+    //设置蛇的宽，高
+    this.width = map.atom;
+    this.height = map.atom;
+    //默认走的方向
+    this.direction = 'right';
+    this.body = [
+        {x:2,y:0},//蛇头，第一点
+        {x:1,y:0},//蛇脖子，第二点
+        {x:0,y:0},//蛇尾，第三点
+    ];
+
+    //显示蛇
+    this.display = function () {
+        for(var i = 0; i < this.body.length; i ++){
+            if(this.body[i].x != null){//当吃到食物时,x==null,不能新建，不然会在0,0处新建一个
+                var s = document.createElement('div');
+                //将节点保存到一个状态变量中，以便以后删除使用
+                this.body[i].flag = s;
+
+                //设置蛇的样式
+                s.style.width = this.width + 'px';
+                s.style.height = this.height + 'px';
+                s.style.backgroundColor = "rgb("+ Math.floor(Math.random() * 200) + ", " + Math.floor(Math.random() * 200) + "," + Math.floor(Math.random() * 200) + ")";
+                //设置位置
+                s.style.position = "absolute";
+                s.style.left = this.body[i].x * this.width + 'px';
+                s.style.top = this.body[i].y * this.height + 'px';
+                //添加到地图中
+                map.canvas.appendChild(s);
+            }
+        }
+    }
+
+    this.run = function () {
+        /*
+        {x:2,y:0},//蛇头，第一点
+        {x:1,y:0},//蛇脖子，第二点
+        {x:0,y:0},//蛇尾，第三点
+         */
+        for (var i = this.length-1; i > 0; i--) {
+            this.body[i].x = this.body[i - 1].x;
+        }
+        this.body[0].x += 1;
+
+        this.display();
+    }
 }
 
 //创建地图
@@ -74,13 +123,17 @@ map.create();//显示画布
 //创建食物
 var food = new Food(map);
 
+//构造蛇对象
+var snake = new Snake(map);
+snake.display();
+
 $(function () {
     var timer;
 
     $("#begin").click(function () {
         clearInterval(timer);
         timer = setInterval(function () {
-
+            snake.run();
         }, 300);
     });
 
