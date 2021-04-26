@@ -107,11 +107,17 @@ function Snake(map) {
         {x:1,y:0},//蛇脖子，第二点
         {x:0,y:0},//蛇尾，第三点
          */
-        for (var i = this.length-1; i > 0; i--) {
+        for (var i = this.body.length-1; i > 0; i --) {
             this.body[i].x = this.body[i - 1].x;
+            this.body[i].y = this.body[i - 1].y;
         }
-        this.body[0].x += 1;
+        this.body[0].y += 1;
 
+        for(var i = 0; i < this.body.length; i ++){
+            if(this.body[i].flag != null){//当吃到食物,flag
+                map.canvas.removeChild(this.body[i].flag);
+            }
+        }
         this.display();
     }
 }
